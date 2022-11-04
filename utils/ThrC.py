@@ -1,5 +1,5 @@
 import numpy as np
-
+import torch
 
 # 保留数值较大的系数
 def thrC(C, ro):
@@ -23,3 +23,18 @@ def thrC(C, ro):
     else:
         Cp = C
     return Cp
+
+
+def affinity_matrix(coef):
+    n3 = coef.shape[2]
+    coef_t = torch.permute(coef, [1, 0, 2])
+    c = abs(coef_t) + abs(coef)
+    c = torch.sum(c, dim=2)
+    return c
+
+if __name__ == '__main__':
+    b = [i for i in range(8)]
+    c = torch.tensor(b)
+    c = torch.reshape(c, [2, 2, 2])
+    print(affinity_matrix(c))
+

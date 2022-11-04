@@ -9,7 +9,7 @@ def tprod(a, b):
     c = torch.zeros(n1, l, n3)
     for i in range(n3):
         c[:, :, i] = torch.matmul(a[:, :, i], b[:, :, i])
-    c = torch.fft.ifft(c, dim=2).real
+    c = torch.fft.ifft(c, dim=2).real   # dct
     return c
 
 

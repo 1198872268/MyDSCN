@@ -11,21 +11,21 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str, default="run")
 parser.add_argument('--lambda1', type=float, default=1.0)
 # according to the paper, for yale lambda2=6.3096, for coil 20 and 100, lambda2=30.0, for orl, lambda2=0.2
-parser.add_argument('--lambda2', type=float, default=1.0)  # sparsity cost on C
+parser.add_argument('--lambda2', type=float, default=0.5)  # sparsity cost on C
 parser.add_argument('--lambda3', type=float, default=1.0)  # lambda on gan loss
 parser.add_argument('--lambda4', type=float, default=0.00001)# lambda on AE L2 regularization
 parser.add_argument('--m', type=float, default=0.1)  # lambda on AE L2 regularization
 
 
-parser.add_argument('--lr',  type=float, default=1e-4)  # learning rate
-parser.add_argument('--lr1',  type=float, default=2e-2)  # learning rate
+parser.add_argument('--lr',  type=float, default=2e-4)  # learning rate
+parser.add_argument('--lr1',  type=float, default=5e-4)  # learning rate
 # parser.add_argument('--lr2', type=float, default=2e-4)  # learning rate for discriminator and eqn3plus
 parser.add_argument('--lr2', type=float, default=5e-5)  # learning rate for discriminator and eqn3plus
 
 parser.add_argument('--pretrain', type=int, default=0)  # number of iterations of pretraining
 parser.add_argument('--epochs', type=int, default=200)  # number of epochs to train on eqn3 and eqn3plus
 # parser.add_argument('--enable-at', type=int, default=300)  # epoch at which to enable eqn3plus
-parser.add_argument('--enable-at', type=int, default=100)  # epoch at which to enable eqn3plus
+parser.add_argument('--enable-at', type=int, default=1000)  # epoch at which to enable eqn3plus
 parser.add_argument('--dataset', type=str, default='orl', choices=['yaleb', 'orl', 'coil20', 'coil100'])
 parser.add_argument('--interval', type=int, default=10)
 parser.add_argument('--interval2', type=int, default=1)
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         'coil100': prepare_data_coil100}
 
     assert args.dataset in preparation_funcs
-    alpha, Img, Label, n_input, n_hidden, kernel_size, n_sample_perclass, disc_size, k, post_alpha, all_subjects, model_path = \
+    alpha, Img, Label, n_input, n_hidden, kernel_size, n_sample_perclass, disc_size, k, dim_subspace, post_alpha, all_subjects, model_path = \
         preparation_funcs[args.dataset](folder)
     print(Img.shape)
     Img = torch.tensor(Img * args.imgmult, dtype=torch.float)
@@ -108,8 +108,8 @@ if __name__ == '__main__':
         if args.save:
             generator.save_model(generator)
 
-    t_train_equ3(generator, Img, Label, args.lr1, 1, args.enable_at, args.lambda1, args.lambda2, batch_size=batch_size,
-                 n_hidden=n_hidden, n_class=all_subjects, ro=alpha)
+    t_train_equ3(generator, Img, Label, args.lr1, 1, args.enable_at, args.lambda1, args.lambda2, dim_subspace=dim_subspace, batch_size=batch_size,
+                 k=k, n_hidden=n_hidden, n_class=all_subjects, ro=alpha, post_alpha=post_alpha)
 
 
 

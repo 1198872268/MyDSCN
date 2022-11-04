@@ -13,7 +13,7 @@ class Decoder(nn.Module):
         net = nn.Sequential()
         for i, k_size in enumerate(reversed(self.kernel_size)):
             name = "convT_{}".format(i)
-            if i != len(self.n_hidden) - 1:
+            if i != len(self.n_hidden) + 1:
                 net.add_module(name, nn.Sequential(
                     nn.ConvTranspose2d(n_hidden[i], n_hidden[i+1], kernel_size=k_size, stride=[2, 2], padding=k_size // 2, output_padding=1,
                                        padding_mode='zeros'),
