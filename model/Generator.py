@@ -20,15 +20,15 @@ class Generator(nn.Module):
         self.self_expressive = SelfExpressive(self.batch_size)
 
     def forward_pretrain(self, x):
-        latent, shapes = self.encoder.forward(x)
-        x_r_pre = self.decoder.forward(latent, shapes)
+        latent = self.encoder.forward(x)
+        x_r_pre = self.decoder.forward(latent)
         return x_r_pre
 
     def forward(self, x):
-        latent, shapes = self.encoder.forward(x)
+        latent = self.encoder.forward(x)
         z, z_c, Coef = self.self_expressive.forward(latent)
         latent_c = z_c.reshape(latent.shape)
-        x_r = self.decoder.forward(latent_c, shapes)
+        x_r = self.decoder.forward(latent_c)
         return x_r, Coef, z, z_c
 
     def save_model(self, model):

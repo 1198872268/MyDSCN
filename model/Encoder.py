@@ -1,4 +1,6 @@
 import torch.nn as nn
+from model.Pad import *
+
 
 
 class Encoder(nn.Module):
@@ -14,19 +16,21 @@ class Encoder(nn.Module):
         for i, k_size in enumerate(self.kernel_size):
             name = "conv_{}".format(i)
             net.add_module(name, nn.Sequential(
-                            nn.Conv2d(n_hidden[i], n_hidden[i+1], kernel_size=k_size, stride=(2, 2), padding=k_size // 2, padding_mode='zeros'),
+                            Conv2dSamePad(k_size, 2),
+                            nn.Conv2d(n_hidden[i], n_hidden[i+1], kernel_size=k_size, stride=(2, 2)),
                             nn.ReLU()
                             ))
         return net
 
     def forward(self, x):
-        net = self.conv
-        z = x
-        shapes = []
-        for i in net:
-            shapes.append(list(z.shape))
-            z = i(z)
-        return z, shapes
+        z = self.conv(x)
+        # net = self.conv
+        # z = x
+        # shapes = []
+        # for i in net:
+        #     shapes.append(list(z.shape))
+        #     z = i(z)
+        return z
 
 
 

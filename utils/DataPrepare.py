@@ -51,7 +51,7 @@ def prepare_data_orl(folder):
     disc_size = [50, 1]
     # tunable numbers
     k = 12
-    dim_subspace = 4
+    dim_subspace = 3
     post_alpha = 1.0  # Laplacian parameter
     alpha = 0.2
 

@@ -16,7 +16,8 @@ def pretrain(generator, x, learning_rate, weight_decay, num_epochs):
         indices = np.random.permutation(x.shape[0])[:minibatch_size]
         minibatch = x[indices]  # pretrain with random mini-batch
         x_r_pre = generator.forward_pretrain(minibatch)
-        loss_recon_pre = 0.5 * torch.sum(torch.pow(torch.subtract(x_r_pre, minibatch), 2.0))
+        # loss_recon_pre = 0.5 * torch.sum(torch.pow(torch.subtract(x_r_pre, minibatch), 2.0))
+        loss_recon_pre = F.mse_loss(x_r_pre, minibatch, reduction='sum')
         optimizer.zero_grad()
         loss_recon_pre.backward()
         optimizer.step()
@@ -27,7 +28,6 @@ def pretrain(generator, x, learning_rate, weight_decay, num_epochs):
 
 def train_equ3(generator, x, label, learning_rate, weight_decay, enable_at, lambda1, lambda2, batch_size, n_hidden, k=12,
                 dim_subspace=8, n_class=20, post_alpha=8, ro=0.04):
-    # 这里使用的是Adam优化算法
     optimizer = torch.optim.Adam(generator.parameters(),
                                  lr=learning_rate,
                                  weight_decay=weight_decay)
@@ -39,13 +39,12 @@ def train_equ3(generator, x, label, learning_rate, weight_decay, enable_at, lamb
         # loss_selfexpress = 0.5 * torch.sum(torch.pow(torch.subtract(z_c, z), 2.0))
         loss_recon = F.mse_loss(x_r, x, reduction='sum')
         loss_selfexpress = F.mse_loss(z_c, z, reduction='sum')
-        loss_sparsity = torch.sum(torch.pow(coef, 2))#
-        loss_eqn3 = 10*loss_recon + lambda1 * loss_sparsity + lambda2 * loss_selfexpress  # + self.loss_aereg
+        loss_sparsity = torch.sum(torch.pow(coef, 2))
+        loss_eqn3 = loss_recon + lambda1 * loss_sparsity + lambda2 * loss_selfexpress  # + self.loss_aereg
         optimizer.zero_grad()
         loss_eqn3.backward()
         optimizer.step()
         if epoch % 10 == 0:
-            print("epoch: %.1d" % epoch, "cost: %.8f" % (loss_eqn3 / float(batch_size)), "loss_sparsity:%.8f" % loss_sparsity, "loss_selfexpress:%.8f" % loss_selfexpress, "loss_recon:%.8f" % loss_recon)
             coef = thrC(coef, ro)
             t_begin = time.time()
             y_x_new, _ = post_proC(coef, n_class, dim_subspace, post_alpha)
@@ -63,13 +62,12 @@ def train_equ3(generator, x, label, learning_rate, weight_decay, enable_at, lamb
                 max_acc = acc_x
                 best_epoch = epoch
             print("accuracy: {}".format(acc_x))
-            print('post processing time: {}'.format(t_end - t_begin))
+            print('post processing time: {}'.format(t_end - t_begin),"epoch: %.1d" % epoch, "cost: %.8f" % (loss_eqn3 / float(batch_size)), "loss_sparsity:%.8f" % loss_sparsity, "loss_selfexpress:%.8f" % loss_selfexpress, "loss_recon:%.8f" % loss_recon)
     print("max_acc:{},best_epoch:{}".format(max_acc, best_epoch))
     return loss_eqn3, coef
 
 
 def t_train_equ3(generator, x, label, learning_rate, weight_decay, enable_at, lambda1, lambda2, batch_size, n_hidden, k=3, n_class=20, post_alpha=8, ro=0.04):
-    # 这里使用的是Adam优化算法
     optimizer = torch.optim.Adam(generator.parameters(),
                                  lr=learning_rate,
                                  weight_decay=weight_decay)

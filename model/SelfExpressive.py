@@ -6,7 +6,7 @@ class SelfExpressive(nn.Module):
     def __init__(self, batch_size):
         super(SelfExpressive, self).__init__()
         self.batch_size = batch_size
-        Coef = 1.0e-4 * torch.ones((int(self.batch_size), int(self.batch_size)), dtype=torch.float32, requires_grad=True)
+        Coef = 1.0e-8 * torch.ones((int(self.batch_size), int(self.batch_size)), dtype=torch.float32, requires_grad=True)
         self.Coef = nn.Parameter(Coef)
 
     def forward(self, latent):

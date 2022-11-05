@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str, default="run1")
 parser.add_argument('--lambda1', type=float, default=2.0)
 # according to the paper, for yale lambda2=6.3096, for coil 20 and 100, lambda2=30.0, for orl, lambda2=0.2
-parser.add_argument('--lambda2', type=float, default=1.0)  # sparsity cost on C
+parser.add_argument('--lambda2', type=float, default=0.2)  # sparsity cost on C
 parser.add_argument('--lambda3', type=float, default=30.0)  # lambda on gan loss
 parser.add_argument('--lambda4', type=float, default=0.00001)# lambda on AE L2 regularization
 parser.add_argument('--m', type=float, default=0.1)  # lambda on AE L2 regularization
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     name = generator.state_dict()
     generator = restore_model(generator, kernel_size)
 
-    train_equ3(generator, Img, Label, args.lr1, 1, args.enable_at, args.lambda1, args.lambda2, n_hidden=n_hidden,
+    train_equ3(generator, Img, Label, args.lr1, 1000, args.enable_at, args.lambda1, args.lambda2, n_hidden=n_hidden,
                dim_subspace=dim_subspace, batch_size=batch_size, n_class=all_subjects, ro=alpha, post_alpha=post_alpha)
 
 

@@ -1,4 +1,5 @@
 import torch.nn as nn
+from model.Pad import *
 
 
 class Decoder(nn.Module):
@@ -15,8 +16,8 @@ class Decoder(nn.Module):
             name = "convT_{}".format(i)
             if i != len(self.n_hidden) + 1:
                 net.add_module(name, nn.Sequential(
-                    nn.ConvTranspose2d(n_hidden[i], n_hidden[i+1], kernel_size=k_size, stride=[2, 2], padding=k_size // 2, output_padding=1,
-                                       padding_mode='zeros'),
+                    nn.ConvTranspose2d(n_hidden[i], n_hidden[i+1], kernel_size=k_size, stride=[2, 2]),
+                    ConvTranspose2dSamePad(k_size, 2),
                     nn.ReLU()
                 ))
             else:
@@ -26,13 +27,14 @@ class Decoder(nn.Module):
                 ))
         return net
 
-    def forward(self, z, shapes):
-        shapes = list(reversed(shapes))
-        n_hidden = list(reversed([1] + self.n_hidden))
-        net = self.ConvT
-        x_r = z
-        for i in net:
-            x_r = i(x_r)
+    def forward(self, z):
+        x_r = self.ConvT(z)
+        # shapes = list(reversed(shapes))
+        # n_hidden = list(reversed([1] + self.n_hidden))
+        # net = self.ConvT
+        # x_r = z
+        # for i in net:
+        #     x_r = i(x_r)
         return x_r
 
 
